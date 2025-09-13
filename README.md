@@ -1,7 +1,7 @@
 # Employee Management API (FastAPI + MongoDB)
 
 A simple Employee Management API built with **FastAPI** and **MongoDB Atlas**.  
-Supports full CRUD operations, querying, and aggregation.  
+Supports full CRUD operations, querying, aggregation, and secure JWT-protected routes.  
 
 ---
 
@@ -9,13 +9,17 @@ Supports full CRUD operations, querying, and aggregation.
 - **CRUD**:
   - Create Employee
   - Get Employee by ID
-  - Update Employee
+  - Update Employee (partial updates supported)
   - Delete Employee
 - **Queries**:
   - List employees by department
   - Search employees by skill
   - Calculate average salary per department
-- **Interactive Docs** with Swagger UI (`/docs`) and ReDoc (`/redoc`)
+- **Advanced Features**:
+  - Pagination for employee listing
+  - MongoDB JSON Schema validation
+  - JWT authentication for protected routes
+- **Interactive Docs**: Swagger UI (`/docs`) and ReDoc (`/redoc`)
 
 ---
 
@@ -24,10 +28,14 @@ Supports full CRUD operations, querying, and aggregation.
 - **Motor (async MongoDB driver)** – database connection
 - **MongoDB Atlas** – cloud database
 - **Uvicorn** – ASGI server
+- **python-dotenv** – load environment variables
+- **PyJWT** – JWT authentication
 
 ---
 
 ## 📂 Project Structure
+
+
 employee_api/
 │── app/
 │ ├── init.py
@@ -39,7 +47,8 @@ employee_api/
 │ └── employees.py # Employee API routes
 │
 ├── requirements.txt
-├── .env # MongoDB URI + configs
+├── .env # MongoDB URI + configs (not committed!)
+├── app/test_mongo.py # Optional: safe local MongoDB test
 └── README.md
 
 
@@ -47,52 +56,50 @@ employee_api/
 
 ## ⚙️ Setup & Installation
 
-### 
-1. Clone Repository
+### 1. Clone Repository
 ```bash
 git clone https://github.com/<your-username>/employee-api.git
 cd employee-api
-
+```
 2. Create Virtual Environment
 python -m venv venv
-Activate it:
-
-Windows (PowerShell)
+# Activate it:
+# Windows (PowerShell)
 .\venv\Scripts\Activate
-
+# macOS/Linux
+source venv/bin/activate
 
 3. Install Dependencies
 pip install -r requirements.txt
 
-4. Configure Environment Variables
-Create a .env file in the root:
-MONGO_URI=mongodb+srv://<username>:<password>@<cluster-url>/assessment_db?retryWrites=true&w=majority
-DATABASE_NAME=assessment_db
-SECRET_KEY=local-secret-key
-⚠️ Replace <username>, <password>, <cluster-url> with your MongoDB Atlas details.
 
 5. Run the Server
+
+Local development:
+
 uvicorn app.main:app --reload --port 8000
+
+
+Render deployment (automatic $PORT):
+
+uvicorn app.main:app --host 0.0.0.0 --port $PORT
+
 📖 API Endpoints
-✅ Employees
-POST /employees/ → Create new employee
-
-GET /employees/{employee_id} → Get employee by ID
-
-PUT /employees/{employee_id} → Update employee
-
-DELETE /employees/{employee_id} → Delete employee
-
-🔍 Queries
-GET /employees/department/{department} → List employees by department
-
-GET /employees/skills/{skill} → List employees by skill
-
-GET /employees/average-salary → Get average salary per department
-
+Employees
+Method	Endpoint	Description
+POST	/employees/	Create a new employee
+GET	/employees/{employee_id}	Get employee by ID
+PUT	/employees/{employee_id}	Update employee (partial allowed)
+DELETE	/employees/{employee_id}	Delete employee
+Queries
+Method	Endpoint	Description
+GET	/employees/?department=Engineering	List employees by department, newest first
+GET	/employees/search/?skill=Python	List employees by skill
+GET	/employees/average-salary	Average salary per department
 🧪 Example (cURL)
 
-# Create employee
+Create employee
+
 curl -X POST http://127.0.0.1:8000/employees/ \
   -H "Content-Type: application/json" \
   -d '{
@@ -104,27 +111,31 @@ curl -X POST http://127.0.0.1:8000/employees/ \
     "skills": ["Python", "FastAPI"]
   }'
 
-# Get by ID
+
+Get by ID
+
 curl http://127.0.0.1:8000/employees/E001
 
-# Average salary per department
+
+Average salary per department
+
 curl http://127.0.0.1:8000/employees/average-salary
 
-
 📚 API Docs
+
 Swagger UI → http://127.0.0.1:8000/docs
 
 ReDoc → http://127.0.0.1:8000/redoc
 
-
-## 🚀 API Demo (Swagger UI)
+🚀 API Demo (Swagger UI)
 
 Here’s a quick demo of the Employee API in action:
 
-![Swagger Demo](assets/swagger-demo.gif)
+🌍 Live Demo [assests/swagger-demo.gif]
+
+The API is deployed on Render:
+👉 https://employee-api-wl86.onrender.com/docs#/
 
 
-## 🌍 Live Demo
-The API is deployed on Render and accessible here:  
-👉 [Employee API on Render](https://employee-api-wl86.onrender.com/docs)
 
+## 📂 Project Structure
